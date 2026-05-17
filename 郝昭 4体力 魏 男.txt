@@ -1,0 +1,77 @@
+﻿tianlei|天垒
+skill={
+    trigger:{
+        target:"useCardToBegin",
+        player:"dying",
+    },
+    init:function(player){
+        player.storage.tianlei=0;
+    },
+    intro:{
+        content:"mark",
+        mark:function(dialog,storage,player){
+            return "你受到的傷害值+"+storage;
+        },
+    },
+    filter:function(event,player){
+        if (event.name=='dying') return true;
+        else {
+            if(event.card&&get.type(event.card)=='basic') return true;
+        }    
+    },
+    content:function(){
+        "step 0"
+        player.storage.tianlei++;
+        player.markSkill('tianlei');
+        player.syncStorage('tianlei');
+        player.draw(2).gaintag=['天垒'];
+        player.chooseCard('he',[1,Infinity],'你可以重鑄任意張牌，獲得的牌會在回合結束時棄置');
+        "step 1"
+        if (result.cards) {
+            player.lose(result.cards).type='recast';
+            player.draw(result.cards.length).gaintag=['天垒'];
+        }
+        player.when({global:'phaseEnd'})
+            .then(()=>{
+                var cards=player.getCards('h',card=>card.hasGaintag('天垒')&&lib.filter.cardDiscardable(card,player,'天垒'));
+                if(cards.length) player.discard(cards);
+            })
+    },
+    group:["tianlei_exhurt","tianlei_clear"],
+    subSkill:{
+        exhurt:{
+            trigger:{
+                player:"damageBegin3",
+            },
+            forced:true,
+            charlotte:true,
+            filter:function(event,player){
+                return player.storage.tianlei>0;
+            },
+            content:function(){
+                "step 0"
+                trigger.num+=player.storage.tianlei;
+            },
+            sub:true,
+            "_priority":0,
+        },
+        clear:{
+            trigger:{
+                global:"roundStart",
+            },
+            forced:true,
+            charlotte:true,
+            silent:true,
+            popup:false,
+            content:function(){
+                "step 0"
+                player.storage.tianlei=0;
+                player.unmarkSkill('tianlei'); 
+                player.syncStorage('tianlei');
+            },
+            sub:true,
+            "_priority":0,
+        },
+    },
+    "_priority":0,
+}

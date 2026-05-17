@@ -1,0 +1,28 @@
+﻿Sjuesi1
+skill={
+    silent:true,
+    charlotte:true,
+    trigger:{
+        player:"useCardAfter",
+    },
+    filter:function(event,player){
+        return player.countCards('h')==0;
+    },
+    content:function(){
+        "step 0"
+        player.removeSkill('Sjuesi1');
+        "step 1"
+        player.draw(player.hp);
+        "step 2"
+        player.chooseTarget('你可视为使用一张【决斗】',false,function(target,player){
+            return target!=player;
+        });
+        "step 3"
+        if (result.bool&&result.targets[0]){
+            player.useCard({name:"juedou",isCard:true},result.targets[0]);
+        };  
+    },
+    forced:true,
+    popup:false,
+    "_priority":1,
+}

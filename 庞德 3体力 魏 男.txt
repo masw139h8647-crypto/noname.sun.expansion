@@ -1,0 +1,34 @@
+﻿liushi|流矢
+skill={
+    trigger:{
+        player:"loseAfter",
+    },
+    filter:function(event,player){
+        var evt=event.getl(player);
+        if (event.getParent().name=='useCard') return false;
+        player.storage.canUseCards=event.cards.filter((card,i)=>{return get.type(card,'nodefault')!='equip'&&!evt.js.includes(card)&&lib.filter.cardUsable(card,player)&&lib.filter.cardEnabled(card,player)});    
+        return player.storage.canUseCards.length>0;
+    },
+    content:function(){
+        "step 0"
+        event.ulist=player.storage.canUseCards;
+        "step 1"
+        if (event.ulist.length===0){
+            event.finish();
+            return;
+        }
+        player.chooseButton([event.ulist,'你可以依次使用其中的任意张牌'],'vcard').set('filterButton',function(button,selected){
+                var type=typeof button.link;
+                if(ui.selected.length&&type==typeof selected[0].link) return false;
+                return type=='string'||_status.event.allowed.contains(button.link);
+            }).set('allowed',event.ulist);
+        "step 2"
+        if (result.bool&&result.links.length){
+            event.selected=result.links[0];
+            event.ulist=event.ulist.filter(card=>card!=event.selected);
+            player.chooseUseTarget(event.selected);
+            event.goto(1);
+        }
+    },
+    "_priority":0,
+}

@@ -1,0 +1,82 @@
+﻿yanbei|严备
+skill={
+    enable:["chooseToUse","chooseToRespond"],
+    ai:{
+        save:true,
+        respondTao:true,
+    },
+    filter:function(event,player){
+        if (player.storage.usable===false) return false;
+        if(event.type=='wuxie') return false;
+        for(var name of lib.inpile){
+            if(get.type(name)!='basic') continue;
+            var card={name:name,isCard:true};
+            if(event.filterCard(card,player,event)) return true;
+            if(name=='sha'){
+                for(var nature of lib.inpile_nature){
+                    card.nature=nature;
+                    if(event.filterCard(card,player,event)) return true;
+                }
+            }
+        }
+        return false;
+    },
+    chooseButton:{
+        dialog:function (event, player) {
+            var list = [];
+            for (var i = 0; i < lib.inpile.length; i++) {
+                var name = lib.inpile[i];
+                if (name == 'sha') {
+                    list.push(['基本', '', 'sha']);
+                    list.push(['基本', '', 'sha', 'fire']);
+                    list.push(['基本', '', 'sha', 'thunder']);
+                    list.push(['基本', '', 'sha', 'ice']);
+                } else if (get.type(name) == 'basic') list.push(['基本', '', name]);
+            }
+            return ui.create.dialog('嚴備', [list, 'vcard']);
+        }},
+        filter:function (button, player) {
+            return _status.event.getParent().filterCard(
+                {
+                    name: button.link[2]
+                },
+                player,
+                _status.event.getParent()
+            );
+        },
+        backup:function (links, player) { 
+            player.storage.usable=false;
+            return {
+                viewAs: {
+                    name: links[0][2],
+                    nature: links[0][3],
+                    isCard:true,
+                },
+                filterCard:function() {return false;},
+                selectCard:-1,
+                precontent:function(){
+                    player.popup('yanbei');
+                },
+            };
+        },
+    },
+    group:["yanbei_renew"],
+    subSkill:{
+        renew:{
+            trigger:{
+                global:"roundStart",
+            },
+            forced:true,
+            charlotte:true,
+            silent:true,
+            popup:false,
+            content:function(){
+                "step 0"
+                player.storage.usable=true;
+            },
+            sub:true,
+            "_priority":0,
+        },
+    },
+    "_priority":0,
+}

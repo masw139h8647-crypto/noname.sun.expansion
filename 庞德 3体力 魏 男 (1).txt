@@ -1,0 +1,40 @@
+﻿Sjuesi|决死
+skill={
+    ai:{
+        save:true,
+        respondTao:true,
+    },
+    enable:"chooseToUse",
+    filter:function(event, player) {
+        if (player.countCards('h')==0||player.countCards('h')<=player.hp) return false;
+        var canUseJiu = event.filterCard({name:"jiu", isCard:true}, player, event);
+        if (!canUseJiu) return false;
+        return true;
+    },
+    content:function() {
+        "step 0"
+        var hpNum=player.hp;
+        if (player.hp<0){
+            var hpNum=0
+            
+        };
+        var discardNum=player.countCards('h')-hpNum;
+        player.chooseCard('h', discardNum, "将手牌弃至当前体力值，视为使用一张【酒】");
+        event.goto(2)
+        "step 1"
+        if (!player.hasSkill('Sjuesi1')){
+            player.addSkill('Sjuesi1');
+            player.when({global:'phaseEnd'})
+                .then(()=>{
+                player.removeSkill('Sjuesi1');
+            });
+        };
+        "step 2"
+        if (result.bool) {
+            player.discard(result.cards);
+            player.useCard({ name: "jiu" }, player);
+            event.goto(1)
+        };
+    },
+    "_priority":0,
+}

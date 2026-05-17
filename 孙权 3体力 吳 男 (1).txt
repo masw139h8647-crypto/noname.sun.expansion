@@ -1,0 +1,29 @@
+﻿yubi2|御麾
+skill={
+    zhuSkill:true,
+    usable:1,
+    enable:"phaseUse",
+    filter:function(event,player){
+        return game.hasPlayer(function(current){
+            return current!=player&&current.group=='wu'
+        });
+    },
+    content:function (){
+        'step 0'
+        player.chooseTarget('選擇一名其他吳勢力角色，令其發動一次斡衡',function(card,player,target){
+            return target!=player&&target.group=='wu';
+        }).set('ai',function(target){
+            if(get.attitude(event.nextOne,target)<=0){
+                return 0;
+            }
+            return 2;
+        });
+        'step 1'
+        var next=game.createEvent('yanxi',false);
+        next.player=result.targets[0];
+        next.setContent(lib.skill.woheng2.content);
+
+
+    },
+    "_priority":0,
+}

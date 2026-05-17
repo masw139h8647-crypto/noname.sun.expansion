@@ -1,0 +1,89 @@
+﻿woheng2|斡衡
+skill={
+    trigger:{
+        global:"changeHp",
+    },
+    filter:function(event,player){
+        return player.hp==event.player.hp;
+    },
+    content:function(){
+        'step 0'
+        event.Chain=1;
+        event.nextOne=player;
+        player.chooseTarget('是否选择一名手牌数等于的你角色，令其摸一张牌或弃一张牌',false,function(card,player,target){
+            return target.countCards("h")==player.countCards("h");
+        }).set('ai',function(target){
+            if(target==player) return 2;
+            if(get.attitude(player,target)<=0){
+                return 1;
+            }
+            return 0.5;
+        });
+        'step 1'
+        if (result.targets[0]){
+            event.nextOne=result.targets[0];
+        } else{
+               event.finish();
+        }
+        if (result.bool&&result.targets.length>0){
+            player.chooseControl(['令其摸一张牌','令其弃一张牌','取消']);
+        } else{
+            event.finish();
+        }
+        'step 2'
+        event.LastChoice=result.index;
+        if (result.index==0||result.index==1){
+            event.goto(5);
+        } else {
+            event.finish();
+        }
+        'step 3'
+        event.Chain+=1;
+        if(event.LastChoice==0){
+            event.nextOne.chooseTarget('选择一名手牌数等于你的其他角色，令其摸'+event.Chain+'张牌',true,function(card,player,target){
+                return event.nextOne.countCards("h")==target.countCards("h")&&event.nextOne!=target;
+            }).set('ai',function(target){
+                if(target==event.nextOne) return -1;
+                if(get.attitude(event.nextOne,target)<=0){
+                    return 0.5;
+                }
+                return 2;
+            });
+        } else if(event.LastChoice==1){
+            event.nextOne.chooseTarget('选择一名手牌数等于你的其他角色，令其弃'+event.Chain+'张牌',true,function(card,player,target){
+                return event.nextOne.countCards("h")==target.countCards("h")&&event.nextOne!=target;
+            }).set('ai',function(target){
+                if(target==event.nextOne) return -1;
+                if(get.attitude(event.nextOne,target)<=0){
+                    return 2;
+                }
+                return 0.5;
+            });
+        } else{
+            event.finish();
+        }
+        'step 4'
+        event.nextOne=result.targets[0];
+        'step 5'
+        if (event.LastChoice==0){
+            event.LastChoice=1;
+            event.nextOne.draw(event.Chain);
+        } else if (event.LastChoice==1){
+            event.LastChoice=0;
+            event.nextOne.chooseToDiscard(event.Chain,true,'he');
+        }
+        'step 6'
+        var back=game.hasPlayer(function(current){
+            return current.countCards("h")==event.nextOne.countCards("h")&&current!=event.nextOne;
+        });
+        if(back){
+            event.goto(3);
+        }
+    },
+    "_priority":0,
+    intro:{
+        content:function() {
+            return get.translation(skill + '_info');
+        },
+    },
+}

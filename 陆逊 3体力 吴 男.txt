@@ -1,0 +1,19 @@
+﻿lianying123|连营
+skill={
+    trigger:{
+        global:"gameStart",
+    },
+    forced:true,
+    charlotte:true,
+    content:function(){
+        "step 0"
+        event.card= get.cards(1);
+        player.gain(event.card, 'draw'); 
+        "step 1"
+        player.storage.huaSe=get.suit(event.card);
+        player.showCards(event.card,"连营");
+        "step 2"
+        player.addSkill("lianying321");
+    },
+    "_priority":0,
+}

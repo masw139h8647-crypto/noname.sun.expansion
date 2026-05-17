@@ -1,0 +1,43 @@
+﻿xiawei0123|狹威
+skill={
+    trigger:{
+        player:"useCard",
+        target:"useCardToTarget",
+    },
+    init:function(player){
+        player.storage.allWei=[];
+    },
+    filter:function(event,player){
+        player.storage.drawNum=3;
+        var count=player.getHistory('useSkill',evt=>evt.skill=='xiawei0123').length;
+        if (count>0){
+            player.storage.drawNum-=1;
+        }
+        var WeiCount = player.getCards('h', card => card.hasGaintag('威')).length;
+        var nonWeiCount = player.getCards('h').length-WeiCount;
+        if (WeiCount>nonWeiCount){
+            player.storage.drawNum-=1;
+        }
+        var storeWei=player.getExpansions('sbfenwei_effect');
+        var storeWeiCount=storeWei.length;
+        if (storeWeiCount>player.hp){
+            player.storage.drawNum-=1;
+        }
+        if (player.storage.drawNum==0) return false;
+        return true;
+    },
+    content:function(){
+        "step 0"
+        player.chooseBool('是否摸'+player.storage.drawNum+'張牌並稱為威');
+        "step 1"
+        if (!result.bool) {
+            event.finish();
+            return;
+        }
+        player.draw(player.storage.drawNum).gaintag=['威'];
+        "step 2"
+        var nowItem=player.getCards('he',card=>card.hasGaintag('威')).filter(item=>!player.storage.allWei.includes(item));
+        player.storage.allWei=player.storage.allWei.concat(nowItem);
+    },
+    "_priority":0,
+}

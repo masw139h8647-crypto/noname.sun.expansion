@@ -1,0 +1,24 @@
+﻿lianying321
+skill={
+    trigger:{
+        player:"loseAfter",
+        global:"gainAfter",
+    },
+    filter:function(event,player){
+        var evt=event.getl(player);
+        return evt&&evt.player==player&&evt.hs&&evt.hs.length>0&&evt.hs.some(card=>get.suit(card)===player.storage.huaSe);
+    },
+    forced:true,
+    charlotte:true,
+    silent:true,
+    popup:false,
+    content:function(){
+        "step 0"
+        player.removeSkill('lianying321');
+        "step 1"
+        var next=game.createEvent('lianying123',false);
+        next.player=player;
+        next.setContent(lib.skill.lianying123.content);
+    },
+    "_priority":0,
+}

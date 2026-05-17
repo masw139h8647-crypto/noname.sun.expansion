@@ -1,0 +1,73 @@
+﻿qiongji0123|窮技
+skill={
+    trigger:{
+        player:"loseAfter",
+        global:["cardsDiscardAfter","loseAsyncAfter","equipAfter"],
+    },
+    forced:true,
+    charlotte:true,
+    marktext:"威",
+    intro:{
+        content:"expansion",
+        markcount:"expansion",
+    },
+    filter:function(event,player){
+        if (!player.hasSkill('xiawei0123')) return false;
+        if (event.name!='cardsDiscard'){
+            player.storage.weiPai=event.getd(player,'cards2').filter(card=>player.storage.allWei.includes(card));
+            return event.getd(player,'cards2').some(card=>player.storage.allWei.includes(card));
+        }
+        else{
+            player.storage.weiPai=event.cards.filterInD('d').filter(card=>player.storage.allWei.includes(card));
+            if(!event.cards.filterInD('d').some(card=>player.storage.allWei.includes(card))) return false;
+            var evt=event.getParent();
+            if(evt.name!='orderingDiscard') return false;
+            var evtx=(evt.relatedEvent||evt.getParent());
+            if(evtx.player!=player) return false;
+            return player.hasHistory('lose',evtxx=>{
+                return evtx==(evtxx.relatedEvent||evtxx.getParent())&&evtxx.cards2.length>0;
+            });
+        }
+    },
+    content:function(){
+        "step 0"
+
+
+        player.storage.allWei=player.storage.allWei.filter(card=>!player.storage.weiPai.includes(card));
+        player.addToExpansion(player.storage.weiPai,'qiongji0123','gain2').gaintag.add('sbfenwei_effect');
+    },
+    onremove:function (player, skill) {
+        var cards = player.getExpansions(skill);
+        if (cards.length) player.loseToDiscardpile(cards);
+    },
+    group:["qiongji0123_discardByWei"],
+    subSkill:{
+        discardByWei:{
+            trigger:{
+                global:"phaseEnd",
+            },
+            forced:true,
+            charlotte:true,
+            filter:function(event,player){
+                return player.getExpansions('sbfenwei_effect').length>0&&player.countCards("he")>0;
+            },
+            content:function(){
+                "step 0"
+                var weis=player.getExpansions('sbfenwei_effect');
+                if (weis.length>player.countCards("he")){
+                    event.lostCards=player.countCards("he");
+                }else{
+                    event.lostCards=weis.length;
+                }
+                player.chooseToDiscard(weis.length,true,'he');
+                'step 1'
+                player.chooseButton(['請移去'+event.lostCards+'張威',player.getExpansions('sbfenwei_effect')],event.lostCards);
+                "step 2"
+                player.loseToDiscardpile(result.links);
+            },
+            sub:true,
+            "_priority":0,
+        },
+    },
+    "_priority":0,
+}
