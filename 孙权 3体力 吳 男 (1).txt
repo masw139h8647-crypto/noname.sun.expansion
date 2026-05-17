@@ -22,8 +22,6 @@ skill={
         var next=game.createEvent('yanxi',false);
         next.player=result.targets[0];
         next.setContent(lib.skill.woheng2.content);
-
-
     },
     "_priority":0,
 }
